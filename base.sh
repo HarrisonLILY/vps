@@ -50,7 +50,7 @@ EOF
 chk=$(rpm -qa | grep firewall)
 if [[ ! "$chk" == *"firewalld"* ]];then
     # firewalld not found do you want to install it?
-    read -r -p "Do you want to install firewalld? [y/N] : " -n 1
+    read -r -p "Do you want to install firewalld? [Y/n] : " -n 1
     if [[ "$REPLY" =~ ^([yY])$ ]]; then
         # install firewalld and configure it
         dnf -y install firewalld
