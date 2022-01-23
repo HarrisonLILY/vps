@@ -51,24 +51,25 @@ chk=$(rpm -qa | grep firewall)
 if [[ ! "$chk" == *"firewalld"* ]];then
     # firewalld not found do you want to install it?
     read -r -p "Do you want to install firewalld? [Y/n] : " -n 1
-    if [[ "$REPLY" =~ ^([yY])$ ]]; then
+    if [[ ! "$REPLY" =~ ^([Nn])$ ]]; then
         # install firewalld and configure it
         dnf -y install firewalld
         systemctl enable --now firewalld
         # open firewall to allow HTTP and HTTPS traffic
         firewall-cmd --permanent --zone=public --add-service=https --add-service=http
         firewall-cmd --reload
+        printf "\nFirewall installed and rules updated\n"
+    else
+        printf "\nfirewalld NOT installed!\n" 
     fi
 else
     # open firewall to allow HTTP and HTTPS traffic
     firewall-cmd --permanent --zone=public --add-service=https --add-service=http
     firewall-cmd --reload
+    printf "\nFirewall rules updated\n"
 fi
 # start the nginx service and enable it at boot
 systemctl enable --now nginx
-# check if SELinux should be disabled
-# set text colour to yellow
-tput setaf 3;
 # check if SELinux should be disabled
 read -r -p "Do you want to disabled SELinux? [y/N] : " -n 1
 if [[ "$REPLY" =~ ^([yY])$ ]]; then
@@ -87,5 +88,3 @@ else
     setsebool -P httpd_can_network_connect on
     chcon -Rt httpd_sys_content_t /var/www/html/$ip/
 fi
-# set text colour back to default
-tput sgr0;
