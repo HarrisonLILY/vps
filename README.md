@@ -1,4 +1,4 @@
-# Rocky
+# VPS Deployment Scripts
 
 ## Table of contents
 * [General info](#general-info)
