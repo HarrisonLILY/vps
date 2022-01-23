@@ -46,9 +46,24 @@ EOF
 cat <<EOF > /var/www/html/$ip/index.html
 afflift rocks :)
 EOF
-# open firewall to allow HTTP and HTTPS traffic
-firewall-cmd --permanent --zone=public --add-service=https --add-service=http
-firewall-cmd --reload
+# check if firewall deamon is installed 
+chk=$(rpm -qa | grep firewall)
+if [[ ! "$chk" == *"firewalld"* ]];then
+    # firewalld not found do you want to install it?
+    read -r -p "Do you want to install firewalld? [y/N] : " -n 1
+    if [[ "$REPLY" =~ ^([yY])$ ]]; then
+        # install firewalld and configure it
+        dnf -y install firewalld
+        systemctl enable --now firewalld
+        # open firewall to allow HTTP and HTTPS traffic
+        firewall-cmd --permanent --zone=public --add-service=https --add-service=http
+        firewall-cmd --reload
+    fi
+else
+    # open firewall to allow HTTP and HTTPS traffic
+    firewall-cmd --permanent --zone=public --add-service=https --add-service=http
+    firewall-cmd --reload
+fi
 # start the nginx service and enable it at boot
 systemctl enable --now nginx
 # check if SELinux should be disabled
